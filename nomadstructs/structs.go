@@ -1,7 +1,11 @@
+// Specs used for autocompletion
+//
+// We cannot use the upstream config schemas as they are not publicly exposed.
+// Validation uses upstream Nomad parser tho.
 package nomadstructs
 
 import (
-	"github.com/hashicorp/hcl2/hcldec"
+	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
 )
 
