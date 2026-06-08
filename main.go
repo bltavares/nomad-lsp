@@ -11,8 +11,8 @@ import (
 	"github.com/creachadair/jrpc2/handler"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
-	"github.com/juliosueiras/nomad-lsp/helper"
-	"github.com/juliosueiras/nomad-lsp/nomadstructs"
+	"github.com/bltavares/nomad-lsp/helper"
+	"github.com/bltavares/nomad-lsp/nomadstructs"
 	lsp "github.com/sourcegraph/go-lsp"
 )
 

@@ -1,4 +1,4 @@
-module github.com/juliosueiras/nomad-lsp
+module github.com/bltavares/nomad-lsp
 
 go 1.26
 

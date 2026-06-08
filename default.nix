@@ -11,9 +11,9 @@ buildGoModule rec {
 
   meta = with lib; {
     description = "Language Server Protocol for Nomad";
-    homepage = https://github.com/juliosueiras/nomad-lsp;
+    homepage = https://github.com/bltavares/nomad-lsp;
     license = licenses.mit;
-    maintainers = with maintainers; [ juliosueiras ];
+    maintainers = with maintainers; [ bltavares ];
     platforms = platforms.all;
   };
 }
