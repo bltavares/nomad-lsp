@@ -54,7 +54,7 @@ func GetAttributeCompletion(hclBlocks []*hcl.Block, result []lsp.CompletionItem)
 			currentType = *et
 		}
 
-		if !currentType.IsPrimitiveType() {
+		if currentType.IsObjectType() {
 			for k, v := range currentType.AttributeTypes() {
 				if v.IsObjectType() {
 					result = append(result, lsp.CompletionItem{

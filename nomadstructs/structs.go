@@ -98,6 +98,65 @@ var GroupSpec = &hcldec.BlockMapSpec{
 		"restart":        RestartSpec,
 		"spread":         SpreadSpec,
 		"update":         UpdateSpec,
+		"network":        NetworkSpec,
+		"service":        ServiceSpec,
+		"volume":         VolumeSpec,
+	},
+}
+
+var VolumeMountSpec = &hcldec.BlockSpec{
+	TypeName: "config",
+	Nested: &hcldec.ObjectSpec{
+		"volume": &hcldec.AttrSpec{
+			Name: "volume",
+			Type: cty.String,
+		},
+		"destination": &hcldec.AttrSpec{
+			Name: "destination",
+			Type: cty.String,
+		},
+		"read_only": &hcldec.AttrSpec{
+			Name: "read_only",
+			Type: cty.Bool,
+		},
+		"propagation_mode": &hcldec.AttrSpec{
+			Name: "propagation_mode",
+			Type: cty.String,
+		},
+		"selinux_label": &hcldec.AttrSpec{
+			Name: "selinux_label",
+			Type: cty.String,
+		},
+	},
+}
+var LifecycleSpec = &hcldec.BlockSpec{
+	TypeName: "lifecycle",
+	Nested: &hcldec.ObjectSpec{
+		"hook": &hcldec.AttrSpec{
+			Name: "hook",
+			Type: cty.String,
+		},
+		"sidecar": &hcldec.AttrSpec{
+			Name: "sidecar",
+			Type: cty.Bool,
+		},
+	},
+}
+
+var ActionSpec = &hcldec.BlockMapSpec{
+	LabelNames: []string{
+		"action",
+	},
+	TypeName: "action",
+	Nested: &hcldec.ObjectSpec{
+		"command": &hcldec.AttrSpec{
+			Name: "command",
+			Type: cty.String,
+		},
+		"args": &hcldec.AttrSpec{
+			Name: "args",
+			Type: cty.List(cty.String),
+		},
 	},
 }
 
@@ -117,8 +176,11 @@ var TaskSpec = &hcldec.BlockMapSpec{
 		"meta":             MetaSpec,
 		"resources":        ResourcesSpec,
 		"service":          ServiceSpec,
-		"spread":           SpreadSpec,
+		"restart":          RestartSpec,
 		"template":         TemplateSpec,
+		"volume_mount":     VolumeMountSpec,
+		"lifecycle":        LifecycleSpec,
+		"action":           ActionSpec,
 
 		"driver": &hcldec.AttrSpec{
 			Name:     "driver",
@@ -269,7 +331,7 @@ var DispatchPayloadSpec = &hcldec.BlockSpec{
 
 var EnvSpec = &hcldec.BlockAttrsSpec{
 	TypeName:    "env",
-	ElementType: cty.String,
+	ElementType: cty.Map(cty.String),
 }
 
 var EphemeralDiskSpec = &hcldec.BlockSpec{
@@ -331,24 +393,70 @@ var MigrateSpec = &hcldec.BlockSpec{
 	},
 }
 
+var DNSSpec = &hcldec.BlockSpec{
+	TypeName: "dns",
+	Nested: &hcldec.ObjectSpec{
+		"servers": &hcldec.AttrSpec{
+			Name: "servers",
+			Type: cty.List(cty.String),
+		},
+		"searches": &hcldec.AttrSpec{
+			Name: "searches",
+			Type: cty.List(cty.String),
+		},
+		"options": &hcldec.AttrSpec{
+			Name: "options",
+			Type: cty.List(cty.String),
+		},
+	},
+}
+var CNISpec = &hcldec.BlockSpec{
+	TypeName: "cni",
+	Nested: &hcldec.ObjectSpec{
+		"args": &hcldec.AttrSpec{
+			Name: "args",
+			Type: cty.Map(cty.String),
+		},
+	},
+}
+var PortSpec = &hcldec.BlockMapSpec{
+	LabelNames: []string{
+		"port",
+	},
+	TypeName: "port",
+	Nested: &hcldec.ObjectSpec{
+		"static": &hcldec.AttrSpec{
+			Name: "static",
+			Type: cty.Number,
+		},
+		"to": &hcldec.AttrSpec{
+			Name: "to",
+			Type: cty.Number,
+		},
+		"host_network": &hcldec.AttrSpec{
+			Name: "host_network",
+			Type: cty.String,
+		},
+		"ignore_collision": &hcldec.AttrSpec{
+			Name: "ignore_collision",
+			Type: cty.Bool,
+		},
+	},
+}
 var NetworkSpec = &hcldec.BlockSpec{
 	TypeName: "network",
 	Nested: &hcldec.ObjectSpec{
-		"mbits": &hcldec.AttrSpec{
-			Name: "mbits",
-			Type: cty.Number,
+		"dns":  DNSSpec,
+		"cni":  CNISpec,
+		"port": PortSpec,
+
+		"mode": &hcldec.AttrSpec{
+			Name: "mode",
+			Type: cty.String,
 		},
-		"port": &hcldec.BlockMapSpec{
-			LabelNames: []string{
-				"port",
-			},
-			TypeName: "port",
-			Nested: &hcldec.ObjectSpec{
-				"static": &hcldec.AttrSpec{
-					Name: "static",
-					Type: cty.Number,
-				},
-			},
+		"hostname": &hcldec.AttrSpec{
+			Name: "hostname",
+			Type: cty.String,
 		},
 	},
 }
@@ -375,9 +483,12 @@ var PeriodicSpec = &hcldec.BlockSpec{
 	TypeName: "periodic",
 	Nested: &hcldec.ObjectSpec{
 		"cron": &hcldec.AttrSpec{
-			Name:     "cron",
-			Type:     cty.String,
-			Required: true,
+			Name: "cron",
+			Type: cty.String,
+		},
+		"crons": &hcldec.AttrSpec{
+			Name: "crons",
+			Type: cty.List(cty.String),
 		},
 		"prohibit_overlap": &hcldec.AttrSpec{
 			Name: "prohibit_overlap",
@@ -386,6 +497,10 @@ var PeriodicSpec = &hcldec.BlockSpec{
 		"time_zone": &hcldec.AttrSpec{
 			Name: "time_zone",
 			Type: cty.String,
+		},
+		"enabled": &hcldec.AttrSpec{
+			Name: "enabled",
+			Type: cty.Bool,
 		},
 	},
 }
@@ -455,6 +570,10 @@ var RestartSpec = &hcldec.BlockSpec{
 			Name: "mode",
 			Type: cty.String,
 		},
+		"render_templates": &hcldec.AttrSpec{
+			Name: "render_templates",
+			Type: cty.Bool,
+		},
 	},
 }
 
@@ -467,6 +586,10 @@ var ServiceSpec = &hcldec.BlockSpec{
 		},
 		"port": &hcldec.AttrSpec{
 			Name: "port",
+			Type: cty.String,
+		},
+		"provider": &hcldec.AttrSpec{
+			Name: "provider",
 			Type: cty.String,
 		},
 		"tags": &hcldec.AttrSpec{
@@ -610,6 +733,10 @@ var TemplateSpec = &hcldec.BlockSpec{
 			Name: "env",
 			Type: cty.Bool,
 		},
+		"error_on_missing_key": &hcldec.AttrSpec{
+			Name: "error_on_missing_key",
+			Type: cty.Bool,
+		},
 		"left_delimiter": &hcldec.AttrSpec{
 			Name: "left_delimiter",
 			Type: cty.String,
@@ -617,6 +744,18 @@ var TemplateSpec = &hcldec.BlockSpec{
 		"perms": &hcldec.AttrSpec{
 			Name: "perms",
 			Type: cty.String,
+		},
+		"uid": &hcldec.AttrSpec{
+			Name: "uid",
+			Type: cty.Number,
+		},
+		"gid": &hcldec.AttrSpec{
+			Name: "gid",
+			Type: cty.Number,
+		},
+		"once": &hcldec.AttrSpec{
+			Name: "once",
+			Type: cty.Bool,
 		},
 		"right_delimiter": &hcldec.AttrSpec{
 			Name: "right_delimiter",
@@ -671,6 +810,57 @@ var UpdateSpec = &hcldec.BlockSpec{
 		"stagger": &hcldec.AttrSpec{
 			Name: "stagger",
 			Type: cty.String,
+		},
+	},
+}
+
+var VolumeSpec = &hcldec.BlockMapSpec{
+	TypeName: "volume",
+	LabelNames: []string{
+		"volume",
+	},
+	Nested: &hcldec.ObjectSpec{
+		"type": &hcldec.AttrSpec{
+			Name: "type",
+			Type: cty.String,
+		},
+		"source": &hcldec.AttrSpec{
+			Name:     "source",
+			Type:     cty.String,
+			Required: true,
+		},
+		"read_only": &hcldec.AttrSpec{
+			Name: "read_only",
+			Type: cty.Bool,
+		},
+		"sticky": &hcldec.AttrSpec{
+			Name: "sticky",
+			Type: cty.Bool,
+		},
+		"per_alloc": &hcldec.AttrSpec{
+			Name: "per_alloc",
+			Type: cty.Bool,
+		},
+		"access_mode": &hcldec.AttrSpec{
+			Name: "access_mode",
+			Type: cty.String,
+		},
+		"attachment_mode": &hcldec.AttrSpec{
+			Name: "attachment_mode",
+			Type: cty.String,
+		},
+		"mount_options": &hcldec.BlockSpec{
+			TypeName: "mount_options",
+			Nested: &hcldec.ObjectSpec{
+				"fs_type": &hcldec.AttrSpec{
+					Name: "fs_type",
+					Type: cty.String,
+				},
+				"mount_flags": &hcldec.AttrSpec{
+					Name: "attachment_mode",
+					Type: cty.List(cty.String),
+				},
+			},
 		},
 	},
 }
