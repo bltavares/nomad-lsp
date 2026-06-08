@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -25,7 +24,7 @@ var DiagsFiles = make(map[string][]lsp.Diagnostic)
 
 func Initialize(ctx context.Context, vs lsp.InitializeParams) (lsp.InitializeResult, error) {
 
-	file, err := ioutil.TempFile("", "nomad-lsp-")
+	file, err := os.CreateTemp("", "nomad-lsp-")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,7 +56,7 @@ func Initialize(ctx context.Context, vs lsp.InitializeParams) (lsp.InitializeRes
 
 func TextDocumentComplete(ctx context.Context, vs lsp.CompletionParams) (lsp.CompletionList, error) {
 	var result []lsp.CompletionItem
-	fileText, _ := ioutil.ReadFile(tempFile.Name())
+	fileText, _ := os.ReadFile(tempFile.Name())
 
 	helper.DumpLog(tempFile.Name())
 	pos := hcl.Pos{

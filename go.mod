@@ -1,6 +1,6 @@
 module github.com/juliosueiras/nomad-lsp
 
-go 1.12
+go 1.26
 
 require (
 	github.com/agext/levenshtein v1.2.2 // indirect
