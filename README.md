@@ -17,6 +17,7 @@ go install https://github.com/bltavares/nomad-lsp@latest
 
 - Error checking
 - Autocompletion
+- Formatting
 
 ## To-do
 

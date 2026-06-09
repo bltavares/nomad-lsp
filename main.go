@@ -3,16 +3,17 @@ package main
 import (
 	"context"
 	"log"
+	"math"
 	"os"
 	"strings"
 
+	"github.com/bltavares/nomad-lsp/helper"
+	"github.com/bltavares/nomad-lsp/nomadstructs"
 	"github.com/creachadair/jrpc2"
 	"github.com/creachadair/jrpc2/channel"
 	"github.com/creachadair/jrpc2/handler"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
-	"github.com/bltavares/nomad-lsp/helper"
-	"github.com/bltavares/nomad-lsp/nomadstructs"
 	lsp "github.com/sourcegraph/go-lsp"
 )
 
@@ -43,7 +44,8 @@ func Initialize(ctx context.Context, vs lsp.InitializeParams) (lsp.InitializeRes
 				ResolveProvider:   false,
 				TriggerCharacters: []string{"."},
 			},
-			HoverProvider: true,
+			HoverProvider:              true,
+			DocumentFormattingProvider: true,
 			//			DocumentSymbolProvider:    true,
 			//ReferencesProvider: true,
 			//			DefinitionProvider:        true,
@@ -134,6 +136,31 @@ func TextDocumentPublishDiagnostics(server *jrpc2.Server, ctx context.Context, v
 	return server.Notify(ctx, "textDocument/publishDiagnostics", vs)
 }
 
+func TextFormatting(ctx context.Context, vs lsp.DocumentFormattingParams) ([]lsp.TextEdit, error) {
+	fileURL := strings.Replace(string(vs.TextDocument.URI), "file://", "", 1)
+	log.Printf("Formatting file %s", fileURL)
+	out, err := nomadstructs.Format(tempFile.Name(), fileURL)
+	if err != nil {
+		return nil, err
+	}
+
+	return []lsp.TextEdit{
+		{
+			NewText: out,
+			Range: lsp.Range{
+				Start: lsp.Position{
+					Line:      0,
+					Character: 0,
+				},
+				End: lsp.Position{
+					Line:      math.MaxInt32,
+					Character: math.MaxInt32,
+				},
+			},
+		},
+	}, nil
+}
+
 func main() {
 	Server = jrpc2.NewServer(handler.Map{
 		"initialize":              handler.New(Initialize),
@@ -142,6 +169,7 @@ func main() {
 		"textDocument/didOpen":    handler.New(TextDocumentDidOpen),
 		"textDocument/didClose":   handler.New(TextDocumentDidClose),
 		"textDocument/hover":      handler.New(TextDocumentHover),
+		"textDocument/formatting": handler.New(TextFormatting),
 		//"textDocument/references": handler.New(TextDocumentReferences),
 		//"textDocument/codeLens": handler.New(TextDocumentCodeLens),
 		"exit":            handler.New(Exit),
@@ -162,6 +190,7 @@ func main() {
 	log.Print("Server started")
 
 	if err := Server.Wait(); err != nil {
+		_ = os.Remove(tempFile.Name())
 		log.Printf("Server exited: %v", err)
 	}
 }
