@@ -1,6 +1,6 @@
 # Nomad LSP
 
-![nomad version](https://img.shields.io/badge/nomad-1.11.3-blue.svg)
+![nomad version](https://img.shields.io/badge/nomad-1.11.3-green.svg)
 
 This is LSP(Language Server Protocol) for Nomad
 
@@ -10,7 +10,14 @@ This is LSP(Language Server Protocol) for Nomad
 ## Installation
 
 ```sh
-go install https://github.com/bltavares/nomad-lsp@latest
+# 1. Build from source
+go install github.com/bltavares/nomad-lsp@latest
+
+# 2. Donwload from the release pages
+
+# 3. Install with mise
+# mise use github:bltavares/nomad-lsp@latest # Pre-Built binaries
+# mise use go:github.com/bltavares/nomad-lsp@latest # Build from source
 ```
 
 ## Features
@@ -21,11 +28,9 @@ go install https://github.com/bltavares/nomad-lsp@latest
 
 ## To-do
 
-- Add the full schema from nomad jobspec
+- Add the full schema from nomad jobspec for autocompletion
 
 ## Credits
 - LSP structure using [Sourcegraph's go-lsp](https://github.com/sourcegraph/go-lsp)
 - JSON-RPC 2.0 using [jrpc2](https://github.com/creachadair/jrpc2)
-
-## License
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fbltavares%2Fnomad-lsp.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fbltavares%2Fnomad-lsp?ref=badge_large)
+- @juliosueiras for their [initial implementation](https://github.com/juliosueiras/nomad-lsp)
